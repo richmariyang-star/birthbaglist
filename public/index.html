@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>출산가방 체크리스트</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="sticky-head">
+        <a
+          class="blog-link"
+          href="https://blog.naver.com/millionnairebubu"
+          target="_blank"
+          rel="noopener"
+          aria-label="네이버 블로그 열기"
+        >
+          <span>b</span>
+        </a>
+
+        <button id="shareHome" class="home-share-button" type="button" aria-label="홈페이지 공유">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="18" cy="5" r="2.5" />
+            <circle cx="6" cy="12" r="2.5" />
+            <circle cx="18" cy="19" r="2.5" />
+            <path d="M8.4 10.8 15.6 6.2" />
+            <path d="M8.4 13.2 15.6 17.8" />
+          </svg>
+        </button>
+
+        <button id="openSharePanel" class="menu-button" type="button" aria-label="공유 코드 열기">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <h1 class="app-title">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 11.5 12 5l8 6.5" />
+            <path d="M6.5 10.5V20h11v-9.5" />
+            <path d="M10 20v-5h4v5" />
+          </svg>
+          <span>출산 준비물 리스트</span>
+        </h1>
+
+        <header class="top-panel">
+          <div id="profileDisplay" class="profile-display" hidden>
+            <strong id="profileText"></strong>
+            <button id="editProfile" type="button">수정</button>
+          </div>
+          <div id="profileForm" class="baby-fields">
+            <label>
+              <span>태명</span>
+              <input id="babyName" type="text" autocomplete="off" placeholder="예: 콩떡이" />
+            </label>
+            <label>
+              <span>출생예정일</span>
+              <input id="dueDate" type="date" />
+            </label>
+            <button id="saveProfile" type="button">저장</button>
+          </div>
+        </header>
+
+        <section class="summary-row" aria-label="준비 현황">
+          <div class="summary-content">
+            <button id="resetList" type="button" aria-label="체크리스트 초기화">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 12a8 8 0 1 1-2.4-5.7" />
+                <path d="M18 2v5h-5" />
+              </svg>
+            </button>
+            <strong id="progressText">0 / 0</strong>
+            <span id="progressPercent">0%</span>
+          </div>
+          <div class="progress-track"><span id="progressBar"></span></div>
+        </section>
+
+        <p class="partner-notice">
+          일부 링크는 쿠팡 파트너스 활동의 일환으로, 구매 시 일정액의 수수료를 제공받습니다.
+        </p>
+
+        <section class="filter-shell" aria-label="체크리스트 필터">
+          <div class="filter-bar">
+            <button class="filter-pill" type="button" data-filter-toggle="main">
+              <span id="mainFilterLabel">병원</span>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg>
+            </button>
+            <button class="filter-pill" type="button" data-filter-toggle="sub">
+              <span id="subFilterLabel">산모</span>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg>
+            </button>
+            <button class="filter-pill" type="button" data-filter-toggle="importance">
+              <span id="importanceFilterLabel">전체</span>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg>
+            </button>
+            <button id="toggleAdd" type="button" aria-expanded="false">+</button>
+          </div>
+
+          <div id="filterChips" class="filter-chips" hidden>
+            <div class="chip-group" data-filter-group="main" hidden>
+              <button type="button" data-main="hospital">병원</button>
+              <button type="button" data-main="care">조리원</button>
+            </div>
+            <div class="chip-group" data-filter-group="sub" hidden>
+              <button type="button" data-sub="산모">산모</button>
+              <button type="button" data-sub="아기">아기</button>
+              <button type="button" data-sub="보호자">보호자</button>
+            </div>
+            <div class="chip-group" data-filter-group="importance" hidden>
+              <button type="button" data-importance="all">전체</button>
+              <button type="button" data-importance="★">★★★</button>
+              <button type="button" data-importance="☆">★★</button>
+              <button type="button" data-importance="△">★</button>
+            </div>
+          </div>
+
+          <div class="native-filters" aria-hidden="true">
+            <select id="mainFilter" tabindex="-1">
+              <option value="hospital">병원</option>
+              <option value="care">조리원</option>
+            </select>
+            <select id="subFilter" tabindex="-1">
+              <option value="산모">산모</option>
+              <option value="아기">아기</option>
+              <option value="보호자">보호자</option>
+            </select>
+            <select id="importanceFilter" tabindex="-1">
+              <option value="all">전체</option>
+              <option value="★">★★★</option>
+              <option value="☆">★★</option>
+              <option value="△">★</option>
+            </select>
+          </div>
+        </section>
+      </section>
+
+      <section id="sharePanel" class="share-panel" aria-label="공유 코드" hidden>
+        <div class="share-panel-head">
+          <strong>공유 코드</strong>
+          <button id="closeSharePanel" type="button" aria-label="공유 코드 닫기">×</button>
+        </div>
+        <label>
+          <span>공유 코드</span>
+          <input id="shareCodeInput" type="text" autocomplete="off" inputmode="latin" />
+        </label>
+        <div class="share-actions">
+          <button id="applyShareCode" type="button">접속</button>
+          <button id="copyShareLink" type="button">코드 복사</button>
+        </div>
+      </section>
+
+      <section class="add-box" aria-label="항목 추가">
+        <form id="addForm" hidden>
+          <label>
+            <span>물품명</span>
+            <input id="newName" type="text" required placeholder="추가할 준비물" />
+          </label>
+          <label>
+            <span>중요도</span>
+            <select id="newImportance">
+              <option value="★">★★★</option>
+              <option value="☆">★★</option>
+              <option value="△">★</option>
+            </select>
+          </label>
+          <label>
+            <span>설명</span>
+            <textarea id="newDescription" rows="2" placeholder="간단한 메모"></textarea>
+          </label>
+          <label>
+            <span>구매 링크</span>
+            <input id="newLink" type="url" />
+          </label>
+          <button type="submit">추가하기</button>
+        </form>
+      </section>
+
+      <section id="list" class="checklist" aria-live="polite"></section>
+    </main>
+
+    <template id="itemTemplate">
+      <article class="item-card">
+        <label class="check-wrap">
+          <input type="checkbox" />
+          <span></span>
+        </label>
+        <div class="item-body">
+          <div class="item-head">
+            <h3></h3>
+          </div>
+          <p></p>
+        </div>
+        <span class="importance"></span>
+        <a class="buy-link" target="_blank" rel="noopener sponsored" aria-label="구매 링크">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 9h14l-1.2 9H6.2L5 9Z" />
+            <path d="M3.5 9h17" />
+            <path d="M8 9l3-5" />
+            <path d="M16 9l-3-5" />
+            <path d="M8.5 12v4" />
+            <path d="M12 12v4" />
+            <path d="M15.5 12v4" />
+          </svg>
+        </a>
+        <button type="button" class="delete-btn" aria-label="항목 삭제">×</button>
+      </article>
+    </template>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>

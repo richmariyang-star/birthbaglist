@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>출산가방 체크리스트 관리자</title>
+    <link rel="stylesheet" href="./admin.css" />
+  </head>
+  <body>
+    <main class="admin-shell">
+      <header class="admin-header">
+        <div>
+          <strong>관리자</strong>
+          <h1>항목 관리</h1>
+        </div>
+        <a href="./index.html">체크리스트</a>
+      </header>
+
+      <section class="editor-panel" aria-label="항목 편집">
+        <input id="itemId" type="hidden" />
+        <div class="field-grid">
+          <label>
+            <span>큰 카테고리</span>
+            <select id="mainCategory">
+              <option value="hospital">병원</option>
+              <option value="care">조리원</option>
+            </select>
+          </label>
+          <label>
+            <span>세부 카테고리</span>
+            <select id="subCategory">
+              <option value="산모">산모</option>
+              <option value="아기">아기</option>
+              <option value="보호자">보호자</option>
+            </select>
+          </label>
+          <label>
+            <span>중요도</span>
+            <select id="importance">
+              <option value="★">★★★</option>
+              <option value="☆">★★</option>
+              <option value="△">★</option>
+            </select>
+          </label>
+        </div>
+        <label>
+          <span>항목명</span>
+          <input id="name" type="text" placeholder="예: 신분증" />
+        </label>
+        <label>
+          <span>메모</span>
+          <textarea id="description" rows="2" placeholder="필요한 설명만 입력"></textarea>
+        </label>
+        <label>
+          <span>구매 링크</span>
+          <input id="link" type="url" placeholder="https://..." />
+        </label>
+        <div class="form-actions">
+          <button id="saveItem" type="button">항목 저장</button>
+          <button id="clearForm" type="button">새 항목</button>
+        </div>
+      </section>
+
+      <section class="toolbar" aria-label="항목 필터">
+        <input id="search" type="search" placeholder="항목 검색" />
+        <select id="filterMain" aria-label="큰 카테고리 필터">
+          <option value="all">전체</option>
+          <option value="hospital">병원</option>
+          <option value="care">조리원</option>
+        </select>
+        <button id="saveAll" type="button">전체 저장</button>
+      </section>
+
+      <p id="status" class="status" role="status"></p>
+      <section id="itemList" class="item-list" aria-label="항목 목록"></section>
+    </main>
+
+    <template id="adminItemTemplate">
+      <article class="admin-item">
+        <div>
+          <strong></strong>
+          <p></p>
+        </div>
+        <span></span>
+        <button class="edit-btn" type="button">수정</button>
+        <button class="delete-btn" type="button">삭제</button>
+      </article>
+    </template>
+
+    <script src="./admin.js" type="module"></script>
+  </body>
+</html>
