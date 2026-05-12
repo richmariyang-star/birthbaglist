@@ -4,45 +4,50 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>출산가방 체크리스트</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icon.svg" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="app-shell">
       <section class="sticky-head">
-        <a
-          class="blog-link"
-          href="https://blog.naver.com/millionnairebubu"
-          target="_blank"
-          rel="noopener"
-          aria-label="네이버 블로그 열기"
-        >
-          <span>b</span>
-        </a>
+        <div class="app-bar">
+          <h1 class="app-title">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 11.5 12 5l8 6.5" />
+              <path d="M6.5 10.5V20h11v-9.5" />
+              <path d="M10 20v-5h4v5" />
+            </svg>
+            <span>출산 준비물</span>
+          </h1>
 
-        <button id="shareHome" class="home-share-button" type="button" aria-label="홈페이지 공유">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="18" cy="5" r="2.5" />
-            <circle cx="6" cy="12" r="2.5" />
-            <circle cx="18" cy="19" r="2.5" />
-            <path d="M8.4 10.8 15.6 6.2" />
-            <path d="M8.4 13.2 15.6 17.8" />
-          </svg>
-        </button>
+          <div class="app-actions">
+            <a
+              class="blog-link"
+              href="https://blog.naver.com/millionnairebubu"
+              target="_blank"
+              rel="noopener"
+              aria-label="네이버 블로그 열기"
+            >
+              <span>N</span>
+            </a>
 
-        <button id="openSharePanel" class="menu-button" type="button" aria-label="공유 코드 열기">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
+            <button id="shareHome" class="home-share-button" type="button" aria-label="홈페이지 공유">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3v12" />
+                <path d="M7.5 7.5 12 3l4.5 4.5" />
+                <path d="M5 13v7h14v-7" />
+              </svg>
+            </button>
 
-        <h1 class="app-title">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 11.5 12 5l8 6.5" />
-            <path d="M6.5 10.5V20h11v-9.5" />
-            <path d="M10 20v-5h4v5" />
-          </svg>
-          <span>출산 준비물 리스트</span>
-        </h1>
+            <button id="openSharePanel" class="menu-button" type="button" aria-label="공유 코드 열기">
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          </div>
+        </div>
 
         <header class="top-panel">
           <div id="profileDisplay" class="profile-display" hidden>
@@ -64,14 +69,14 @@
 
         <section class="summary-row" aria-label="준비 현황">
           <div class="summary-content">
+            <strong id="progressText">0 / 0</strong>
+            <span id="progressPercent">0%</span>
             <button id="resetList" type="button" aria-label="체크리스트 초기화">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M20 12a8 8 0 1 1-2.4-5.7" />
                 <path d="M18 2v5h-5" />
               </svg>
             </button>
-            <strong id="progressText">0 / 0</strong>
-            <span id="progressPercent">0%</span>
           </div>
           <div class="progress-track"><span id="progressBar"></span></div>
         </section>
@@ -133,25 +138,40 @@
             </select>
           </div>
         </section>
+
       </section>
 
-      <section id="sharePanel" class="share-panel" aria-label="공유 코드" hidden>
-        <div class="share-panel-head">
-          <strong>공유 코드</strong>
-          <button id="closeSharePanel" type="button" aria-label="공유 코드 닫기">×</button>
+      <section id="sharePanel" class="share-panel" aria-label="메뉴" hidden>
+        <button id="installApp" class="menu-action" type="button"><span>+</span><em>홈 화면 추가</em></button>
+        <button id="copyShareLink" class="menu-action" type="button">
+          <span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.5" /><circle cx="6" cy="12" r="2.5" /><circle cx="18" cy="19" r="2.5" /><path d="M8.4 10.8 15.6 6.2M8.4 13.2 15.6 17.8" /></svg>
+          </span>
+          <em>코드 공유하기</em>
+        </button>
+        <div class="code-menu-row">
+          <button id="applyShareCode" class="menu-action" type="button"><span>↵</span><em>코드 접속하기</em></button>
+          <input id="shareCodeInput" type="text" autocomplete="off" inputmode="latin" placeholder="코드 입력" />
         </div>
-        <label>
-          <span>공유 코드</span>
-          <input id="shareCodeInput" type="text" autocomplete="off" inputmode="latin" />
-        </label>
-        <div class="share-actions">
-          <button id="applyShareCode" type="button">접속</button>
-          <button id="copyShareLink" type="button">코드 복사</button>
-        </div>
+        <button class="menu-action" type="button"><span>?</span><em>사용 방법</em></button>
       </section>
 
       <section class="add-box" aria-label="항목 추가">
         <form id="addForm" hidden>
+          <label class="form-full">
+            <span>카테고리</span>
+          </label>
+          <div class="category-row">
+            <select id="newMain">
+              <option value="hospital">병원</option>
+              <option value="care">조리원</option>
+            </select>
+            <select id="newSub">
+              <option value="산모">산모</option>
+              <option value="아기">아기</option>
+              <option value="보호자">보호자</option>
+            </select>
+          </div>
           <label>
             <span>물품명</span>
             <input id="newName" type="text" required placeholder="추가할 준비물" />
@@ -194,13 +214,8 @@
         <span class="importance"></span>
         <a class="buy-link" target="_blank" rel="noopener sponsored" aria-label="구매 링크">
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M5 9h14l-1.2 9H6.2L5 9Z" />
-            <path d="M3.5 9h17" />
-            <path d="M8 9l3-5" />
-            <path d="M16 9l-3-5" />
-            <path d="M8.5 12v4" />
-            <path d="M12 12v4" />
-            <path d="M15.5 12v4" />
+            <path d="M6.5 8.5h11l.8 12h-12.6l.8-12Z" />
+            <path d="M9 8.5V6a3 3 0 0 1 6 0v2.5" />
           </svg>
         </a>
         <button type="button" class="delete-btn" aria-label="항목 삭제">×</button>

@@ -1,4 +1,8 @@
 const subCategories = ["산모", "아기", "보호자"];
+const mainCategories = [
+  { value: "hospital", label: "병원" },
+  { value: "care", label: "조리원" },
+];
 const importanceLabels = { "★": "필수", "☆": "상황별", "△": "선택" };
 const importanceOrder = { "★": 0, "☆": 1, "△": 2 };
 const importanceStars = { "★": "★★★", "☆": "★★", "△": "★" };
@@ -15,11 +19,14 @@ const state = {
   checked: {},
   hiddenIds: [],
   customItems: [],
+  customMainCategories: [],
+  customSubCategories: [],
 };
 
 let baseItems = [];
 let saveTimer;
 let shareCode = "";
+let installPromptEvent;
 
 const els = {
   babyName: document.querySelector("#babyName"),
@@ -51,7 +58,10 @@ const els = {
   template: document.querySelector("#itemTemplate"),
   addForm: document.querySelector("#addForm"),
   toggleAdd: document.querySelector("#toggleAdd"),
+  installApp: document.querySelector("#installApp"),
   newName: document.querySelector("#newName"),
+  newMain: document.querySelector("#newMain"),
+  newSub: document.querySelector("#newSub"),
   newImportance: document.querySelector("#newImportance"),
   newDescription: document.querySelector("#newDescription"),
   newLink: document.querySelector("#newLink"),
@@ -62,15 +72,19 @@ function normalizeState(payload) {
     babyName: payload.babyName || "",
     dueDate: payload.dueDate || "",
     profileSaved: Boolean(payload.profileSaved || (payload.babyName && payload.dueDate)),
-    selectedMain: payload.selectedMain === "care" ? "care" : "hospital",
-    selectedSub: subCategories.includes(payload.selectedSub) ? payload.selectedSub : "산모",
+    selectedMain: payload.selectedMain || "hospital",
+    selectedSub: payload.selectedSub || "산모",
     selectedImportance: ["all", "★", "☆", "△"].includes(payload.selectedImportance)
       ? payload.selectedImportance
       : "all",
     checked: payload.checked || {},
     hiddenIds: Array.isArray(payload.hiddenIds) ? payload.hiddenIds : [],
     customItems: Array.isArray(payload.customItems) ? payload.customItems : [],
+    customMainCategories: Array.isArray(payload.customMainCategories) ? payload.customMainCategories : [],
+    customSubCategories: Array.isArray(payload.customSubCategories) ? payload.customSubCategories : [],
   });
+  if (!getMainOptions().some((item) => item.value === state.selectedMain)) state.selectedMain = "hospital";
+  if (!getSubOptions().includes(state.selectedSub)) state.selectedSub = "산모";
 }
 
 async function load() {
@@ -151,15 +165,16 @@ function currentItems() {
 }
 
 function syncControls() {
+  syncCategoryControls();
   els.babyName.value = state.babyName;
   els.dueDate.value = state.dueDate;
-  els.profileText.textContent = getProfileText();
+  els.profileText.replaceChildren(getProfileLabel());
   els.profileDisplay.hidden = !state.profileSaved;
   els.profileForm.hidden = state.profileSaved;
   els.mainFilter.value = state.selectedMain;
   els.subFilter.value = state.selectedSub;
   els.importanceFilter.value = state.selectedImportance;
-  els.mainFilterLabel.textContent = mainFilterLabels[state.selectedMain];
+  els.mainFilterLabel.textContent = getMainLabel(state.selectedMain);
   els.subFilterLabel.textContent = state.selectedSub;
   els.importanceFilterLabel.textContent = importanceFilterLabels[state.selectedImportance];
   if (els.shareCodeInput) els.shareCodeInput.value = shareCode;
@@ -173,6 +188,30 @@ function syncControls() {
   document.querySelectorAll("[data-importance]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.importance === state.selectedImportance);
   });
+}
+
+function getMainOptions() {
+  return [...mainCategories, ...state.customMainCategories];
+}
+
+function getSubOptions() {
+  return [...subCategories, ...state.customSubCategories];
+}
+
+function getMainLabel(value) {
+  return getMainOptions().find((item) => item.value === value)?.label || mainFilterLabels[value] || value;
+}
+
+function syncSelect(select, options, selected) {
+  select.replaceChildren(...options.map((option) => new Option(option.label || option, option.value || option)));
+  select.value = selected;
+}
+
+function syncCategoryControls() {
+  syncSelect(els.newMain, getMainOptions(), state.selectedMain);
+  syncSelect(els.mainFilter, getMainOptions(), state.selectedMain);
+  syncSelect(els.newSub, getSubOptions(), state.selectedSub);
+  syncSelect(els.subFilter, getSubOptions(), state.selectedSub);
 }
 
 function closeFilterChips() {
@@ -196,6 +235,16 @@ function toggleFilterChips(groupName) {
 function getProfileText() {
   const babyName = state.babyName || "태명 미입력";
   return `${getDdayLabel(state.dueDate)} ${babyName}`;
+}
+
+function getProfileLabel() {
+  const babyName = state.babyName || "태명 미입력";
+  const fragment = document.createDocumentFragment();
+  const dday = document.createElement("span");
+  dday.className = "dday-label";
+  dday.textContent = getDdayLabel(state.dueDate);
+  fragment.append(dday, document.createTextNode(` ${babyName}`));
+  return fragment;
 }
 
 function getDdayLabel(dateText) {
@@ -285,7 +334,10 @@ function renderProgress() {
   const total = scopeItems.length;
   const percent = total ? Math.round((done / total) * 100) : 0;
   els.progressText.textContent = `${done}/${total}`;
-  els.progressPercent.textContent = `${percent}% 완료`;
+  els.progressPercent.replaceChildren();
+  const percentValue = document.createElement("b");
+  percentValue.textContent = `${percent}%`;
+  els.progressPercent.append(percentValue, " 완료");
   els.progressBar.style.width = `${percent}%`;
 }
 
@@ -296,11 +348,35 @@ function resetChecklist() {
   state.checked = {};
   state.hiddenIds = [];
   state.customItems = [];
+  state.customMainCategories = [];
+  state.customSubCategories = [];
   els.addForm.hidden = true;
   els.toggleAdd.textContent = "+";
   els.toggleAdd.setAttribute("aria-expanded", "false");
   save();
   render();
+}
+
+function isStandaloneMode() {
+  return window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+}
+
+function setupInstallButton() {
+  if (isStandaloneMode()) {
+    els.installApp.hidden = true;
+    return;
+  }
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    installPromptEvent = event;
+    els.installApp.hidden = false;
+  });
+
+  window.addEventListener("appinstalled", () => {
+    installPromptEvent = undefined;
+    els.installApp.hidden = true;
+  });
 }
 
 function queueSave() {
@@ -375,12 +451,10 @@ els.shareHome.addEventListener("click", async () => {
 });
 
 els.openSharePanel.addEventListener("click", () => {
-  els.sharePanel.hidden = false;
-  els.shareCodeInput.focus();
-  els.shareCodeInput.select();
+  els.sharePanel.hidden = !els.sharePanel.hidden;
 });
 
-els.closeSharePanel.addEventListener("click", () => {
+els.closeSharePanel?.addEventListener("click", () => {
   els.sharePanel.hidden = true;
 });
 
@@ -405,9 +479,9 @@ els.applyShareCode.addEventListener("click", () => {
 els.copyShareLink.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(shareCode);
-    els.copyShareLink.textContent = "완료";
+    els.copyShareLink.querySelector("em").textContent = "완료";
     setTimeout(() => {
-      els.copyShareLink.textContent = "코드 복사";
+      els.copyShareLink.querySelector("em").textContent = "코드 공유하기";
       els.sharePanel.hidden = true;
     }, 1200);
   } catch {
@@ -459,6 +533,22 @@ els.toggleAdd.addEventListener("click", () => {
   els.addForm.hidden = !willOpen;
   els.toggleAdd.textContent = willOpen ? "−" : "+";
   els.toggleAdd.setAttribute("aria-expanded", String(willOpen));
+  if (willOpen) {
+    syncCategoryControls();
+    els.newMain.value = state.selectedMain;
+    els.newSub.value = state.selectedSub;
+  }
+});
+
+els.installApp.addEventListener("click", async () => {
+  if (installPromptEvent) {
+    installPromptEvent.prompt();
+    await installPromptEvent.userChoice;
+    installPromptEvent = undefined;
+    return;
+  }
+
+  alert("브라우저 메뉴에서 '홈 화면에 추가'를 선택해 주세요.");
 });
 
 els.addForm.addEventListener("submit", (event) => {
@@ -466,10 +556,12 @@ els.addForm.addEventListener("submit", (event) => {
   const name = els.newName.value.trim();
   if (!name) return;
 
+  state.selectedMain = els.newMain.value;
+  state.selectedSub = els.newSub.value;
   state.customItems.push({
     id: `custom-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-    mainCategory: state.selectedMain,
-    mainLabel: state.selectedMain === "hospital" ? "병원용" : "조리원용",
+    mainCategory: els.newMain.value,
+    mainLabel: getMainLabel(els.newMain.value),
     subCategory: state.selectedSub,
     importance: els.newImportance.value,
     name,
@@ -482,5 +574,11 @@ els.addForm.addEventListener("submit", (event) => {
   queueSave();
   render();
 });
+
+setupInstallButton();
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./sw.js").catch(() => {});
+}
 
 load();
