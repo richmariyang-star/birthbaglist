@@ -91,7 +91,7 @@ async function load() {
   shareCode = getInitialShareCode();
   setShareCode(shareCode, { replace: true });
   const [itemsResponse, stateResponse] = await Promise.all([
-    fetch("./items.json"),
+    fetch("/api/items", { cache: "no-store" }),
     fetch(`/api/state?code=${encodeURIComponent(shareCode)}`).catch(() => null),
   ]);
   baseItems = await itemsResponse.json();
